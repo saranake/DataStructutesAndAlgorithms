@@ -1,0 +1,27 @@
+Refer to slide 4 from slides.
+Hamiltonian path is an ordered list of nodes in the graph. 
+Every node in this list has a position (e.g. A is at position 1, B is at position B etc.)
+
+We have to find an order subject to these constraints:
+
+
+(1) Every node must occupy some position. 
+(2) One node can't take two or more position
+(3) Two nodes can't take one position
+
+(4) Every position on the path must be occupied
+(5) Only two nodes that are adjacent in the graph can be adjacent on the path. 
+
+Clause Generation:
+
+For a graph with "n" nodes, hamiltonian path will have "n" nodes.
+Any node can take any one of "n" position. That means we will need "n" variables
+for each node. e.g. Variable X(1,1) = 1 assigns node 1 to position 1, X(2,1) assigns
+position 2 on the path and so on. In general, X(p,n) = 1 assigns node n to position p.
+
+Lers assume graph with 4 nodes, A,B, C and D
+
+(1) Every node must ocuppy some position.
+
+  
+
