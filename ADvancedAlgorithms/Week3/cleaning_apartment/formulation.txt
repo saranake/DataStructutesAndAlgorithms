@@ -1,9 +1,9 @@
 Refer to slide 4 from slides.
+
 Hamiltonian path is an ordered list of nodes in the graph. 
 Every node in this list has a position (e.g. A is at position 1, B is at position B etc.)
 
 We have to find an order subject to these constraints:
-
 
 (1) Every node must occupy some position. 
 (2) One node can't take two or more position
@@ -16,12 +16,34 @@ Clause Generation:
 
 For a graph with "n" nodes, hamiltonian path will have "n" nodes.
 Any node can take any one of "n" position. That means we will need "n" variables
-for each node. e.g. Variable X(1,1) = 1 assigns node 1 to position 1, X(2,1) assigns
+for each node. 
+
+e.g. Variable X(1,1) = 1 assigns node 1 to position 1, X(2,1) assigns
 position 2 on the path and so on. In general, X(p,n) = 1 assigns node n to position p.
 
-Lers assume graph with 4 nodes, A,B, C and D
+Since there are n nodes each having n possible position, problem needs n**2 variables.
 
-(1) Every node must ocuppy some position.
+Lets assume graph with 4 nodes, A, B, C and D for the sake of example. 
+Lets consider generation of clauses.
 
-  
+Constraint (1): Every node must ocuppy some position.
+
+Node A can occuply position 1, 2, 3 or 4.
+X(1, A) | X(2, A) | X(3, A) | X(4, A)
+Similarly, clauses for B, C and D can be generated.
+
+=> for(int i = 1; i <= n; i++) {
+     /* Generate clause for i'th node */
+     for(int pos = 1; pos <= n; pos ++) {
+       std::cout << genVar(pos, n);
+     }
+     std::cout << "0";
+   }
+   
+Constraints (2): One node can't take two or more position
+
+e.g. X(1, A) and X(2, A) is not allowed. 
+! (X(1, A) & (X(2, A) = !X(1, A) | ! X(2, A)
+ 
+     
 
