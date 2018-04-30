@@ -5,12 +5,12 @@ Every node in this list has a position (e.g. A is at position 1, B is at positio
 
 We have to find an order subject to these constraints:
 
-(1) Every node must occupy some position. 
-(2) One node can't take two or more position
-(3) Two nodes can't take one position
+(1) Each node must appear in the path 
+(2) No node appears twice in the path
+(3) Every position on the path must be occupied
 
-(4) Every position on the path must be occupied
-(5) Only two nodes that are adjacent in the graph can be adjacent on the path. 
+(4) No two nodes occupy same position in the path
+(5) Non adjacent nodes can't be adjacent in the path
 
 Clause Generation:
 
@@ -23,27 +23,44 @@ position 2 on the path and so on. In general, X(p,n) = 1 assigns node n to posit
 
 Since there are n nodes each having n possible position, problem needs n**2 variables.
 
-Lets assume graph with 4 nodes, A, B, C and D for the sake of example. 
+Lets assume graph with 4 nodes, A, B, C and D for the sake of example.  Also lets
+assume function genVar() returns unique variable for a given position and node number.
+
 Lets consider generation of clauses.
 
-Constraint (1): Every node must ocuppy some position.
+Constraint (1): Each node must appear in the path
 
-Node A can occuply position 1, 2, 3 or 4.
+Node A can occuply any position 1, 2, 3 or 4.
 X(1, A) | X(2, A) | X(3, A) | X(4, A)
 Similarly, clauses for B, C and D can be generated.
 
 => for(int i = 1; i <= n; i++) {
      /* Generate clause for i'th node */
      for(int pos = 1; pos <= n; pos ++) {
-       std::cout << genVar(pos, n);
+       std::cout << genVar(pos, n) << " ";
      }
-     std::cout << "0";
+     std::cout << "0\n";
    }
    
-Constraints (2): One node can't take two or more position
+Constraints (2): No node appears twice in the path
 
-e.g. X(1, A) and X(2, A) is not allowed. 
-! (X(1, A) & (X(2, A) = !X(1, A) | ! X(2, A)
+e.g. X(1, A) and X(2, A) is not allowed as A appears at position 1 and 2.
+
+Condition such as this can be expressed as :! (X(1, A) & (X(2, A)
+It translates into CNF form : !X(1, A) | ! X(2, A)
  
-     
+ =>  for(int i = 1; i <= n; i++) {
+       for(int pos1 = 1; pos1 <= n; j++) {
+         for(int pos2 = 1; pos2 <= n; pos2++)
+           if(pos1 != pos2) {
+             std::cout << "-" << genVar(pos1, i) << " -" << genVar(pos2, i) << "\n";
+            }
+         }
+      }
+      std::cout << "0\n";
+    }
+    
+Constraint (3) Every position on the path must be occupied
+
+
 
