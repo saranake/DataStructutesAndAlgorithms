@@ -1,0 +1,83 @@
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <limits>
+
+using std::cin;
+using std::cout;
+using std::endl;
+using std::vector;
+
+struct Node {
+  public:
+  int key;
+  int left;
+  int right;
+  int min;
+  int max;
+
+  Node() : key(0), left(-1), right(-1), min(0), max(0) {}
+  Node(int key_, int left_, int right_, int min_, int max_) : key(key_), left(left_), right(right_), min(min_), max(max_) {}
+};
+
+bool IsBinarySearchTreeInt(vector<Node>& tree, int i, bool *problem) {
+
+  if(i == -1) {
+    return true;
+  }
+  Node &n = tree[i];
+  if((n.key > n.max) || (n.key < n.min)) {
+    *problem = true;
+  }
+  if(*problem) {
+    return false;
+  }
+  int l = n.left;
+  int r = n.right;
+
+  if(l != -1) {
+    Node &left = tree[l];
+    left.max = n.key -1;
+    left.min = n.min;
+  }
+
+  if(r != -1) {
+    Node &right = tree[r];
+    right.max = n.max;
+    right.min = n.key;
+  }
+  if(!IsBinarySearchTreeInt(tree, l,  problem)) {
+    return false;
+  }
+  if(!IsBinarySearchTreeInt(tree, r, problem)) {
+    return false;
+  }
+}
+
+bool IsBinarySearchTree(vector<Node>& tree) {
+  bool first = true;
+  bool problem = false;
+  int num = 0;
+  int prev = 0;
+  tree[0].min = std::numeric_limits<int>::min();
+  tree[0].max = std::numeric_limits<int>::max();
+  IsBinarySearchTreeInt(tree, 0, &problem);
+  return !problem;
+}
+
+int main() {
+  int nodes;
+  cin >> nodes;
+  vector<Node> tree;
+  for (int i = 0; i < nodes; ++i) {
+    int key, left, right;
+    cin >> key >> left >> right;
+    tree.push_back(Node(key, left, right, std::numeric_limits<int>::min(), std::numeric_limits<int>::max() ));
+  }
+  if ((tree.size() == 0) || IsBinarySearchTree(tree)) {
+    cout << "CORRECT" << endl;
+  } else {
+    cout << "INCORRECT" << endl;
+  }
+  return 0;
+}
