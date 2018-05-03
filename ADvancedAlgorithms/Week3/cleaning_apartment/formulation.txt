@@ -62,5 +62,51 @@ It translates into CNF form : !X(1, A) | ! X(2, A)
     
 Constraint (3) Every position on the path must be occupied
 
+That is, position 1 must have node A or node B or node C ..
+         position 2 must have node A or node B or node C ..
+
+This constraint translates to X(1, A) | X(1, B) | X(1, C) ..
+                              X(2, A) | X(2, B) | (2, C) ..
+                              ..
+                              
+=> for(int pos = 1 ; pos <= n ; pos++) {
+      for(int j = 1; j <= n; j++) {
+        std::cout << genVar(pos, j) << (j >= (n-1) ? " " : "\n";
+      }
+   }
+   
+Constraint (4) : No two nodes occupy same position in the path
+
+That is X(1, A) and X(1, B) is disallowed.
+        X(1, A) and X(1, C) is diallowed.
+        ..
+        X(2, A) and X(2, B) is disallowed
+        X(2, A) and X(1, C) is disallowed
 
 
+=> for(int pos = 1; pos <= n; pos ++) {
+     for(int i = 1; i <= n; i++)
+       for(int j = 1; j <= n; j++) {
+         if(i != j) {
+           std::cout << "-" << genVar(pos, i) << " -" << genVar(pos, j) << "\n";
+         }
+       }
+     }
+   }
+
+(5) Non adjacent nodes can't be adjacent in the path
+
+That is X(1, A) an X(2, B) are not allowed if A and B are not adjacent in the graph.
+
+=> for(int pos = 1; pos < n; i++) {
+     for(int i = 1; i <= n; i++) {
+        for(int j = 1; j <= n; j++) {
+          if(!adj(i, j)) {
+             std::cout << "-" << genVar(pos, i) << "-" << genVar(pos+1, j) << "\n";
+          }
+        }
+     }
+   }
+     
+     
+   
