@@ -6,23 +6,140 @@ struct Edge {
     int to;
 };
 
+
 struct ConvertHampathToSat {
     int numVertices;
     vector<Edge> edges;
+    vector<vector<int>> adjList;
 
     ConvertHampathToSat(int n, int m) :
         numVertices(n),
-        edges(m)
+        edges(m),
+        adjList(n+1, vector<int>(1))
     {  }
 
+    bool adj(int n1, int n2) {
+     for(int i = 0; i < adjList[n1].size(); i++) {
+       if(adjList[n1][i] == n2) {
+         return true;
+       }
+     }
+     return false;
+    }
+
+    int getVar(int pos, int n) {
+      return numVertices * (pos - 1) + n;
+    }
+
+    /* number of clauses = numVertices */
+    void eachVertexBelongsToPath() {
+      for(int i = 1 ; i <= numVertices; i++) {
+        for(int pos = 1 ; pos <= numVertices; pos++) {
+          std::cout << getVar(pos, i) << " ";
+        }
+        std::cout << "0\n";
+      }
+     // std::cout << "End Rule 1\n";
+    }
+
+    /* number of clauses = numVertices * (numVertices * (numVertices -1)) / 2; */
+    void noNodeAppearsTwiceOnThePath() {
+      for(int i = 1; i <= numVertices; i++) {
+       for(int pos1 = 1; pos1 < numVertices; pos1++) {
+         for(int pos2 = pos1+1; pos2 <= numVertices; pos2++)
+           std::cout << "-" << getVar(pos1, i) << " -" << getVar(pos2, i) << " 0\n";
+         }
+      }
+     // std::cout << "End Rule 2\n";
+    }
+
+    /* number of clauses = numVertices */
+    void eachPositionOnThePathIsOccupied() {
+      for(int pos = 1 ; pos <= numVertices ; pos++) {
+        for(int i = 1; i <= numVertices; i++) {
+          if(i <= (numVertices-1)) {
+            std::cout << getVar(pos, i) << " ";
+          } else {
+            std::cout << getVar(pos, i) << " 0\n";
+          }
+        }
+      }
+    //  std::cout << "End Rule 3\n";
+    }
+
+    /* number of clauses = numVertices * (numVertices * (numVertices -1)) / 2; */
+    void noTwoNodesCanOccupySamePosition() {
+      for(int pos = 1; pos <= numVertices; pos++) {
+        for(int i = 1; i < numVertices; i++) {
+          for(int j = i+1; j <= numVertices; j++) {
+            if(i != j) {
+              std::cout << "-" << getVar(pos, i) << " -" << getVar(pos, j) << " 0\n";
+            }
+          }
+        }
+      }
+//      std::cout << "End Rule 4\n";
+    }
+
+    /* number of clauses = computeClausesOonlyAllowSuccessiveVerticesConnectedByEdge() */
+    void onlyAllowSuccessiveVerticesConnectedByEdge() {
+      for(int pos = 1; pos <= numVertices; pos++) {
+        for(int i = 1; i < numVertices; i++) {
+           for(int j = i + 1; j <= numVertices; j++) {
+             if(!adj(i, j)) {
+                std::cout << "-" << getVar(pos, i) << " -" << getVar(pos+1, j) << " 0\n";
+             }
+           }
+        }
+      }
+ //     std::cout << "End Rule 5\n";
+    }
+
+    int computeClausesOnlyAllowSuccessiveVerticesConnectedByEdge() {
+      int clauses = 0;
+      for(int i = 1; i <= numVertices; i++) {
+         for(int j = 1 + i; j <= numVertices; j++) {
+           if(!adj(i, j)) {
+              clauses++;
+           }
+         }
+      }
+      return clauses * numVertices;
+    }
+
+    int numClauses() {
+      int rule1 =  numVertices;
+      int rule2 = numVertices * (numVertices * (numVertices -1)) / 2;
+      int rule3 = rule1;
+      int rule4 = rule2;
+      int rule5 = computeClausesOnlyAllowSuccessiveVerticesConnectedByEdge();
+      
+  //    std::cout << "rule1 = rule3 = " << rule1 << " rule2 == rule4 = " << rule2;
+   //   std::cout << " rule5 = " << rule5 << "\n";
+      return rule1 + rule2 + rule3 + rule4 + rule5; 
+    }
+
     void printEquisatisfiableSatFormula() {
+        for(int i = 0; i < edges.size(); i++) {
+          int to = edges[i].to;
+          int from = edges[i].from;
+          adjList[to].push_back(from);
+          adjList[from].push_back(to);
+        }
+        cout << numClauses() << " " << numVertices*numVertices << endl;
+        eachVertexBelongsToPath();
+        noNodeAppearsTwiceOnThePath();
+        eachPositionOnThePathIsOccupied();
+        noTwoNodesCanOccupySamePosition();
+        onlyAllowSuccessiveVerticesConnectedByEdge();
+
         // This solution prints a simple satisfiable formula
         // and passes about half of the tests.
         // Change this function to solve the problem.
-        cout << "3 2" << endl;
-        cout << "1 2 0" << endl;
-        cout << "-1 -2 0" << endl;
-        cout << "1 -2 0" << endl;
+        // cout << "3 2" << endl;
+        // cout << "1 2 0" << endl;
+        // cout << "-1 -2 0" << endl;
+        // cout << "1 -2 0" << endl;
     }
 };
 
