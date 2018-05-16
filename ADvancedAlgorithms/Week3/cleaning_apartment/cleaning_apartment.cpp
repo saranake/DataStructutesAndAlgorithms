@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#include <stdio.h>
+
 using namespace std;
 
 struct Edge {
@@ -11,6 +13,7 @@ struct ConvertHampathToSat {
     int numVertices;
     vector<Edge> edges;
     vector<vector<int>> adjList;
+    bool debug = false;
 
     ConvertHampathToSat(int n, int m) :
         numVertices(n),
@@ -21,6 +24,9 @@ struct ConvertHampathToSat {
     bool adj(int n1, int n2) {
      for(int i = 0; i < adjList[n1].size(); i++) {
        if(adjList[n1][i] == n2) {
+         if(debug) {
+           std::cout << n1 << " and " << n2 << " are adjacent\n";
+         }
          return true;
        }
      }
@@ -31,15 +37,30 @@ struct ConvertHampathToSat {
       return numVertices * (pos - 1) + n;
     }
 
+    std::string getVar(bool asString, int pos, int n) {
+      char var[100];
+      if(asString) {
+        snprintf(var, 100, "%d => X[%d,%d]", getVar(pos, n), pos, n); 
+        std::string str = var ;
+        return str;
+      } else {
+        snprintf(var, 100, "%d", getVar(pos, n)); 
+        std::string str = var ;
+        return str;
+      }
+    }
+
     /* number of clauses = numVertices */
     void eachVertexBelongsToPath() {
       for(int i = 1 ; i <= numVertices; i++) {
         for(int pos = 1 ; pos <= numVertices; pos++) {
-          std::cout << getVar(pos, i) << " ";
+          std::cout << getVar(debug, pos, i) << " ";
         }
         std::cout << "0\n";
       }
-     // std::cout << "End Rule 1\n";
+      if(debug) {
+        std::cout << "End Rule 1\n";
+      }
     }
 
     /* number of clauses = numVertices * (numVertices * (numVertices -1)) / 2; */
@@ -47,10 +68,12 @@ struct ConvertHampathToSat {
       for(int i = 1; i <= numVertices; i++) {
        for(int pos1 = 1; pos1 < numVertices; pos1++) {
          for(int pos2 = pos1+1; pos2 <= numVertices; pos2++)
-           std::cout << "-" << getVar(pos1, i) << " -" << getVar(pos2, i) << " 0\n";
+           std::cout << "-" << getVar(debug, pos1, i) << " -" << getVar(debug, pos2, i) << " 0\n";
          }
       }
-     // std::cout << "End Rule 2\n";
+      if(debug) {
+        std::cout << "End Rule 2\n";
+      }
     }
 
     /* number of clauses = numVertices */
@@ -58,13 +81,15 @@ struct ConvertHampathToSat {
       for(int pos = 1 ; pos <= numVertices ; pos++) {
         for(int i = 1; i <= numVertices; i++) {
           if(i <= (numVertices-1)) {
-            std::cout << getVar(pos, i) << " ";
+            std::cout << getVar(debug, pos, i) << " ";
           } else {
-            std::cout << getVar(pos, i) << " 0\n";
+            std::cout << getVar(debug, pos, i) << " 0\n";
           }
         }
       }
-    //  std::cout << "End Rule 3\n";
+      if(debug) {
+        std::cout << "End Rule 3\n";
+      }
     }
 
     /* number of clauses = numVertices * (numVertices * (numVertices -1)) / 2; */
@@ -73,38 +98,43 @@ struct ConvertHampathToSat {
         for(int i = 1; i < numVertices; i++) {
           for(int j = i+1; j <= numVertices; j++) {
             if(i != j) {
-              std::cout << "-" << getVar(pos, i) << " -" << getVar(pos, j) << " 0\n";
+              std::cout << "-" << getVar(debug, pos, i) << " -" << getVar(debug, pos, j) << " 0\n";
             }
           }
         }
       }
-//      std::cout << "End Rule 4\n";
+      if(debug) {
+        std::cout << "End Rule 4\n";
+      }
     }
 
     /* number of clauses = computeClausesOonlyAllowSuccessiveVerticesConnectedByEdge() */
     void onlyAllowSuccessiveVerticesConnectedByEdge() {
-      for(int pos = 1; pos <= numVertices; pos++) {
+      for(int pos = 1; pos < numVertices; pos++) {
         for(int i = 1; i < numVertices; i++) {
            for(int j = i + 1; j <= numVertices; j++) {
              if(!adj(i, j)) {
-                std::cout << "-" << getVar(pos, i) << " -" << getVar(pos+1, j) << " 0\n";
+                std::cout << "-" << getVar(debug, pos, i) << " -" << getVar(debug, pos+1, j) << " 0\n";
+                std::cout << "-" << getVar(debug, pos, j) << " -" << getVar(debug, pos+1, i) << " 0\n";
              }
            }
         }
       }
- //     std::cout << "End Rule 5\n";
+      if(debug) {
+        std::cout << "End Rule 5\n";
+      }
     }
 
     int computeClausesOnlyAllowSuccessiveVerticesConnectedByEdge() {
       int clauses = 0;
-      for(int i = 1; i <= numVertices; i++) {
+      for(int i = 1; i < numVertices; i++) {
          for(int j = 1 + i; j <= numVertices; j++) {
            if(!adj(i, j)) {
-              clauses++;
+              clauses += 2;
            }
          }
       }
-      return clauses * numVertices;
+      return clauses * (numVertices - 1);
     }
 
     int numClauses() {
@@ -126,7 +156,11 @@ struct ConvertHampathToSat {
           adjList[to].push_back(from);
           adjList[from].push_back(to);
         }
-        cout << numClauses() << " " << numVertices*numVertices << endl;
+        if(debug) {
+          cout << "p cnf " << numVertices*numVertices << " " << numClauses() << endl;
+         } else {
+          cout << numClauses() << " " << numVertices*numVertices << endl;
+         }
         eachVertexBelongsToPath();
         noNodeAppearsTwiceOnThePath();
         eachPositionOnThePathIsOccupied();
